@@ -6,8 +6,7 @@
   <title>Programa Académico</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <style>
-    html,
-    body {
+    html, body {
       margin: 0;
       padding: 0;
       font-family: Arial, sans-serif;
@@ -157,10 +156,51 @@
       updateZoom(img);
     }
 
+    function limpiarEventosZoom() {
+      document.querySelectorAll('.imagen-programa').forEach(img => {
+        img.onclick = null;
+        img.ontouchend = null;
+        img.onwheel = null;
+      });
+    }
+
+    function asignarEventosZoom(img) {
+      img.onclick = (e) => {
+        const now = Date.now();
+        if (!zoomEnabled) return;
+        if (now - lastTap < 300) {
+          scale = scale === 1 ? 2 : 1;
+          zoomAt(img, e.clientX, e.clientY, scale);
+        }
+        lastTap = now;
+      };
+
+      img.ontouchend = (e) => {
+        const now = Date.now();
+        if (!zoomEnabled) return;
+        if (now - lastTap < 300 && e.changedTouches.length === 1) {
+          const touch = e.changedTouches[0];
+          scale = scale === 1 ? 2 : 1;
+          zoomAt(img, touch.clientX, touch.clientY, scale);
+        }
+        lastTap = now;
+      };
+
+      img.onwheel = (e) => {
+        if (!zoomEnabled) return;
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -0.1 : 0.1;
+        scale += delta;
+        scale = Math.max(1, Math.min(3, scale));
+        originX = 50;
+        originY = 50;
+        updateZoom(img);
+      };
+    }
+
     function mostrarDia(dia) {
-      // Evita el zoom por 400 ms al cambiar de día
       zoomEnabled = false;
-      setTimeout(() => { zoomEnabled = true; }, 400);
+      setTimeout(() => { zoomEnabled = true; }, 300);
 
       document.querySelectorAll('.imagen-programa').forEach(img => {
         img.classList.remove('activa');
@@ -187,55 +227,13 @@
         }
       });
 
-      lastTap = new Date().getTime(); // también reseteamos el doble tap
+      // Reasignar eventos de zoom solo a la imagen activa
+      limpiarEventosZoom();
+      asignarEventosZoom(imagen);
     }
 
+    // Mostrar por defecto el primer día
     mostrarDia('miercoles');
-
-    // Doble clic con mouse
-    document.addEventListener('click', (e) => {
-      if (!zoomEnabled) return;
-
-      const now = new Date().getTime();
-      const img = document.querySelector('.imagen-programa.activa');
-      if (!img) return;
-
-      if (now - lastTap < 300) {
-        scale = scale === 1 ? 2 : 1;
-        zoomAt(img, e.clientX, e.clientY, scale);
-      }
-      lastTap = now;
-    });
-
-    // Doble tap con táctil
-    document.addEventListener('touchend', (e) => {
-      if (!zoomEnabled) return;
-
-      const now = new Date().getTime();
-      const img = document.querySelector('.imagen-programa.activa');
-      if (!img) return;
-
-      if (now - lastTap < 300 && e.changedTouches.length === 1) {
-        const touch = e.changedTouches[0];
-        scale = scale === 1 ? 2 : 1;
-        zoomAt(img, touch.clientX, touch.clientY, scale);
-      }
-      lastTap = now;
-    });
-
-    // Zoom con scroll del mouse
-    document.addEventListener('wheel', (e) => {
-      const img = document.querySelector('.imagen-programa.activa');
-      if (!img || !zoomEnabled) return;
-
-      e.preventDefault();
-      const delta = e.deltaY > 0 ? -0.1 : 0.1;
-      scale += delta;
-      scale = Math.max(1, Math.min(3, scale));
-      originX = 50;
-      originY = 50;
-      updateZoom(img);
-    }, { passive: false });
   </script>
 
 </body>
