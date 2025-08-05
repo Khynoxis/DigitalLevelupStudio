@@ -19,13 +19,17 @@
       position: relative;
     }
 
+    /* Evita resaltado al hacer tap en móviles */
+    * {
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
     /* Contenedor libremente posicionable */
     .contenedor-botones {
       position: absolute;
       top: 50%;
-      /* 🔧 Cambia para mover arriba/abajo */
       left: 50%;
-      /* 🔧 Centrado horizontal */
       transform: translate(-50%, -50%);
       display: flex;
       flex-direction: column;
@@ -36,9 +40,7 @@
 
     .boton {
       width: 600px;
-      /* 🔧 Cambia el ancho */
       height: 100px;
-      /* 🔧 Cambia la altura */
       font-size: 3em;
       border: none;
       border-radius: 12px;
@@ -47,16 +49,25 @@
       cursor: pointer;
       transition: transform 0.2s, background-color 0.2s;
       box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+      outline: none;
     }
-    
+
+    .boton:focus {
+      outline: none;
+    }
+
+    .boton:hover {
+      background-color: #ffd700;
+      transform: scale(1.05);
+    }
   </style>
 </head>
 
 <body>
 
   <div class="contenedor-botones">
-    <button class="boton" onclick="window.location.href='programa.html'">Programa Academico</button>
-    <button class="boton" onclick="window.location.href='posters.html'">Casos Clinicos</button>
+    <button class="boton" onclick="window.location.href='programa.html'">Programa Académico</button>
+    <button class="boton" onclick="window.location.href='posters.html'">Casos Clínicos</button>
   </div>
 
 </body>
