@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Inicio - Digital LevelUp</title>
   <style>
-    html, body {
+    html,
+    body {
       margin: 0;
       padding: 0;
       height: 100%;
@@ -20,8 +22,10 @@
     /* Contenedor libremente posicionable */
     .contenedor-botones {
       position: absolute;
-      top: 50%;       /* 🔧 Cambia para mover arriba/abajo */
-      left: 50%;      /* 🔧 Centrado horizontal */
+      top: 50%;
+      /* 🔧 Cambia para mover arriba/abajo */
+      left: 50%;
+      /* 🔧 Centrado horizontal */
       transform: translate(-50%, -50%);
       display: flex;
       flex-direction: column;
@@ -31,8 +35,10 @@
     }
 
     .boton {
-      width: 600px;   /* 🔧 Cambia el ancho */
-      height: 100px;   /* 🔧 Cambia la altura */
+      width: 600px;
+      /* 🔧 Cambia el ancho */
+      height: 100px;
+      /* 🔧 Cambia la altura */
       font-size: 3em;
       border: none;
       border-radius: 12px;
@@ -43,13 +49,16 @@
       box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
     }
 
-    .boton:hover {
-      background-color: #ff0000;
-      color: white;
-      transform: scale(1.05);
+    .boton:focus {
+      background-color: rgba(255, 0, 0, 0.9);
+      color: rgb(255, 255, 255);
+      transform: none;
+      outline: none;
     }
+    
   </style>
 </head>
+
 <body>
 
   <div class="contenedor-botones">
@@ -58,4 +67,5 @@
   </div>
 
 </body>
+
 </html>
