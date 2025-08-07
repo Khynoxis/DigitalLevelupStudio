@@ -11,31 +11,70 @@
       padding: 0;
       font-family: Arial, sans-serif;
       height: 100%;
-      background: url('Imagenes/fondo3.jpg') no-repeat center center fixed;
+      background: url('Imagenes/fondoprograma.png') no-repeat center center fixed;
       background-size: cover;
       overflow-x: hidden;
       color: white;
       touch-action: none;
     }
 
+    .boton-retroceder,
+    .boton-home {
+      position: fixed;
+      width: 120px;
+      height: 100px;
+      font-size: 2.5em;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.9);
+      color: black;
+      cursor: pointer;
+      z-index: 20;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s, background-color 0.3s;
+      opacity: 0;
+ 
+    }
+
+    .boton-retroceder:hover,
+    .boton-home:hover {
+      background-color: #ff0000;
+      color: white;
+      transform: scale(1.1);
+    }
+
+    .boton-retroceder {
+      top: 70px;
+      left: 80px;
+    }
+
+    .boton-home {
+      top: 70px;
+      right: 80px;
+    }
+
     .botones-dia {
       position: fixed;
-      top: 340px;
+      top: 400px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 10;
       display: flex;
-      gap: 50px;
+      gap: 30px;
     }
 
     .boton-dia {
-      width: 250px;
+      width: 220px;
+      font-weight: bold;
       height: 80px;
-      font-size: 2em;
+      font-size: 2.1em;
       background-color: white;
-      color: black;
-      border: 2px solid #333;
-      border-radius: 12px;
+      color: #257774;
+      border: 5px solid #ffffff;
+      border-radius: 40px;
       cursor: pointer;
       transition: background-color 0.3s, transform 0.2s;
       box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
@@ -47,40 +86,19 @@
     }
 
     .boton-dia:hover {
-      background-color: #ff0000;
+      background-color: #257774;
       color: white;
     }
 
     .boton-dia.activo {
-      background-color: #ff0000;
+      background-color: #257774;
       color: white;
       font-weight: bold;
       transform: scale(1.05);
     }
 
-    .boton-retroceder,
-    .boton-home {
-      position: fixed;
-      width: 100px;
-      height: 100px;
-      opacity: 0;
-      border: none;
-      cursor: pointer;
-      z-index: 10;
-    }
-
-    .boton-retroceder {
-      top: 30px;
-      left: 30px;
-    }
-
-    .boton-home {
-      top: 30px;
-      right: 30px;
-    }
-
     .contenido {
-      margin-top: 490px;
+      margin-top: 550px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -88,8 +106,8 @@
 
     .imagen-programa {
       display: none;
-      max-width: 90vw;
-      max-height: 72vh;
+      max-width: 100vw;
+      max-height: 65vh;
       border: 4px solid white;
       border-radius: 10px;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
@@ -107,22 +125,24 @@
 
 <body>
 
-  <!-- Botones invisibles -->
-  <button class="boton-retroceder" onclick="window.history.back()"></button>
-  <button class="boton-home" onclick="window.location.href='index.html'"></button>
+  <!-- Botones navegación -->
+  <button class="boton-retroceder" onclick="window.history.back()">←</button>
+  <button class="boton-home" onclick="window.location.href='index.html'">⌂</button>
 
-  <!-- Filtros por día -->
+  <!-- Botones por día -->
   <div class="botones-dia">
-    <button class="boton-dia" onclick="mostrarDia('miercoles')">Martes 12</button>
-    <button class="boton-dia" onclick="mostrarDia('jueves')">Miércoles 13</button>
-    <button class="boton-dia" onclick="mostrarDia('viernes')">Jueves 14</button>
+    <button class="boton-dia" onclick="mostrarDia('miercoles')">Miércoles</button>
+    <button class="boton-dia" onclick="mostrarDia('jueves')">Jueves</button>
+    <button class="boton-dia" onclick="mostrarDia('viernes')">Viernes</button>
+    <button class="boton-dia" onclick="mostrarDia('sabado')">Sábado</button>
   </div>
 
-  <!-- Contenido de imagen por día -->
+  <!-- Imágenes por día -->
   <div class="contenido">
     <img id="miercoles" class="imagen-programa" src="Imagenes/11.jpg" alt="Programa Miércoles">
     <img id="jueves" class="imagen-programa" src="Imagenes/12.jpg" alt="Programa Jueves">
     <img id="viernes" class="imagen-programa" src="Imagenes/13.jpg" alt="Programa Viernes">
+    <img id="sabado" class="imagen-programa" src="Imagenes/13.jpg" alt="Programa Sábado">
   </div>
 
   <script>
@@ -148,10 +168,8 @@
       const rect = img.getBoundingClientRect();
       const offsetX = x - rect.left;
       const offsetY = y - rect.top;
-
       originX = (offsetX / rect.width) * 100;
       originY = (offsetY / rect.height) * 100;
-
       scale = zoomFactor;
       updateZoom(img);
     }
@@ -216,9 +234,10 @@
       });
 
       const diaMap = {
-        miercoles: 'Martes 12',
-        jueves: 'Miércoles 13',
-        viernes: 'Jueves 14'
+        miercoles: 'Miércoles',
+        jueves: 'Jueves',
+        viernes: 'Viernes',
+        sabado: 'Sábado'
       };
 
       document.querySelectorAll('.boton-dia').forEach(btn => {
@@ -227,13 +246,28 @@
         }
       });
 
-      // Reasignar eventos de zoom solo a la imagen activa
       limpiarEventosZoom();
       asignarEventosZoom(imagen);
     }
 
-    // Mostrar por defecto el primer día
     mostrarDia('miercoles');
+
+    // Redirección tras 60 segundos de inactividad
+    let timeout;
+    const redirectAfter = 60000;
+
+    function resetInactivityTimer() {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        window.location.href = 'index.html';
+      }, redirectAfter);
+    }
+
+    ['mousemove', 'mousedown', 'keypress', 'touchstart', 'scroll'].forEach(evt =>
+      document.addEventListener(evt, resetInactivityTimer, { passive: true })
+    );
+
+    resetInactivityTimer();
   </script>
 
 </body>
