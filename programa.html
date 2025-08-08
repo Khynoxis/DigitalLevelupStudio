@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="UTF-8">
   <title>Programa Académico</title>
@@ -36,7 +35,6 @@
       justify-content: center;
       transition: transform 0.2s, background-color 0.3s;
       opacity: 0;
- 
     }
 
     .boton-retroceder:hover,
@@ -58,7 +56,7 @@
 
     .botones-dia {
       position: fixed;
-      top: 400px;
+      top: 380px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 10;
@@ -98,16 +96,17 @@
     }
 
     .contenido {
-      margin-top: 550px;
+      margin-top: 520px;
       display: flex;
       justify-content: center;
       align-items: center;
+      overflow: hidden;
     }
 
     .imagen-programa {
       display: none;
       max-width: 100vw;
-      max-height: 65vh;
+      max-height: 70vh;
       border: 4px solid white;
       border-radius: 10px;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
@@ -115,6 +114,7 @@
       transition: transform 0.2s ease;
       z-index: 1;
       touch-action: none;
+      cursor: grab;
     }
 
     .imagen-programa.activa {
@@ -124,7 +124,6 @@
 </head>
 
 <body>
-
   <!-- Botones navegación -->
   <button class="boton-retroceder" onclick="window.history.back()">←</button>
   <button class="boton-home" onclick="window.location.href='index.html'">⌂</button>
@@ -142,7 +141,7 @@
     <img id="miercoles" class="imagen-programa" src="Imagenes/11.jpg" alt="Programa Miércoles">
     <img id="jueves" class="imagen-programa" src="Imagenes/12.jpg" alt="Programa Jueves">
     <img id="viernes" class="imagen-programa" src="Imagenes/13.jpg" alt="Programa Viernes">
-    <img id="sabado" class="imagen-programa" src="Imagenes/13.jpg" alt="Programa Sábado">
+    <img id="sabado" class="imagen-programa" src="Imagenes/14.jpg" alt="Programa Sábado">
   </div>
 
   <script>
@@ -152,15 +151,38 @@
     let lastTap = 0;
     let zoomEnabled = true;
 
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let currentX = 0;
+    let currentY = 0;
+
     function updateZoom(img) {
+      const container = img.parentElement.getBoundingClientRect();
+      const imgNaturalWidth = img.naturalWidth;
+      const imgNaturalHeight = img.naturalHeight;
+      const imgDisplayWidth = img.clientWidth;
+      const imgDisplayHeight = img.clientHeight;
+
+      const scaledWidth = imgDisplayWidth * scale;
+      const scaledHeight = imgDisplayHeight * scale;
+
+      const maxX = Math.max((scaledWidth - container.width) / 2, 0);
+      const maxY = Math.max((scaledHeight - container.height) / 2, 0);
+
+      currentX = Math.min(maxX, Math.max(-maxX, currentX));
+      currentY = Math.min(maxY, Math.max(-maxY, currentY));
+
       img.style.transformOrigin = `${originX}% ${originY}%`;
-      img.style.transform = `scale(${scale})`;
+      img.style.transform = `scale(${scale}) translate(${currentX}px, ${currentY}px)`;
     }
 
     function resetZoom(img) {
       scale = 1;
       originX = 50;
       originY = 50;
+      currentX = 0;
+      currentY = 0;
       updateZoom(img);
     }
 
@@ -171,6 +193,8 @@
       originX = (offsetX / rect.width) * 100;
       originY = (offsetY / rect.height) * 100;
       scale = zoomFactor;
+      currentX = 0;
+      currentY = 0;
       updateZoom(img);
     }
 
@@ -179,6 +203,13 @@
         img.onclick = null;
         img.ontouchend = null;
         img.onwheel = null;
+        img.onmousedown = null;
+        img.onmousemove = null;
+        img.onmouseup = null;
+        img.onmouseleave = null;
+        img.ontouchstart = null;
+        img.ontouchmove = null;
+        img.ontouchend = null;
       });
     }
 
@@ -212,7 +243,64 @@
         scale = Math.max(1, Math.min(3, scale));
         originX = 50;
         originY = 50;
+        currentX = 0;
+        currentY = 0;
         updateZoom(img);
+      };
+    }
+
+    function asignarEventosArrastre(img) {
+      img.onmousedown = (e) => {
+        if (scale === 1) return;
+        isDragging = true;
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+        img.style.cursor = "grabbing";
+      };
+
+      img.onmousemove = (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - dragStartX;
+        const dy = e.clientY - dragStartY;
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+        currentX += dx;
+        currentY += dy;
+        updateZoom(img);
+      };
+
+      img.onmouseup = () => {
+        isDragging = false;
+        img.style.cursor = "grab";
+      };
+
+      img.onmouseleave = () => {
+        isDragging = false;
+        img.style.cursor = "grab";
+      };
+
+      img.ontouchstart = (e) => {
+        if (scale === 1 || e.touches.length !== 1) return;
+        isDragging = true;
+        const touch = e.touches[0];
+        dragStartX = touch.clientX;
+        dragStartY = touch.clientY;
+      };
+
+      img.ontouchmove = (e) => {
+        if (!isDragging || e.touches.length !== 1) return;
+        const touch = e.touches[0];
+        const dx = touch.clientX - dragStartX;
+        const dy = touch.clientY - dragStartY;
+        dragStartX = touch.clientX;
+        dragStartY = touch.clientY;
+        currentX += dx;
+        currentY += dy;
+        updateZoom(img);
+      };
+
+      img.ontouchend = () => {
+        isDragging = false;
       };
     }
 
@@ -248,13 +336,14 @@
 
       limpiarEventosZoom();
       asignarEventosZoom(imagen);
+      asignarEventosArrastre(imagen);
     }
 
     mostrarDia('miercoles');
 
-    // Redirección tras 60 segundos de inactividad
+    // Redirección por inactividad
     let timeout;
-    const redirectAfter = 60000;
+    const redirectAfter = 5000;
 
     function resetInactivityTimer() {
       clearTimeout(timeout);
@@ -269,6 +358,5 @@
 
     resetInactivityTimer();
   </script>
-
 </body>
 </html>
