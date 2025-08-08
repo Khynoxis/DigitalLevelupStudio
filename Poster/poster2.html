@@ -79,12 +79,12 @@
 
 <body>
   <!-- Botones navegación -->
-  <button class="boton-retroceder" onclick="window.location.href='../posters.html'">←</button>
+  <button class="boton-retroceder" onclick="window.history.back()">←</button>
   <button class="boton-home" onclick="window.location.href='../index.html'">⌂</button>
 
   <!-- Contenedor principal -->
   <div class="container">
-    <img id="poster" class="poster-imagen" src="../Imagenes/poster01.png" alt="Póster 1">
+    <img id="poster" class="poster-imagen" src="../Imagenes/poster02.png" alt="Póster 1">
   </div>
 
   <script>
@@ -248,9 +248,9 @@
     function handleSwipe() {
       const deltaX = touchEndX - touchStartX;
       if (deltaX > 50) {
-        window.location.href = 'poster3.html'; // ← Anterior
+        window.location.href = 'poster1.html'; // ← Anterior
       } else if (deltaX < -50) {
-        window.location.href = 'poster2.html'; // → Siguiente
+        window.location.href = 'poster3.html'; // → Siguiente
       }
     }
 
