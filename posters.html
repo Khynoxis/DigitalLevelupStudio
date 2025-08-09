@@ -312,6 +312,11 @@
 
     resetInactivityTimer();
 
+// Bloquear click derecho en toda la página
+document.addEventListener('contextmenu', e => e.preventDefault());
+
+// Evitar arrastrar la imagen
+img.addEventListener('dragstart', e => e.preventDefault());
 
   </script>
 </body>
