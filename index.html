@@ -19,57 +19,122 @@
       position: relative;
     }
 
-    /* Evita resaltado al hacer tap en móviles */
     * {
       -webkit-tap-highlight-color: transparent;
       user-select: none;
     }
 
+    /* Texto en la parte superior con animación */
+    #textImg {
+      position: absolute;
+      top: 0%;
+      left: 41%;
+      transform: translateX(-50%);
+      width: 800px;
+      pointer-events: none;
+      opacity: 0;
+      animation: entradaTexto 1.2s ease forwards;
+    }
+
+    @keyframes entradaTexto {
+      0% {
+        transform: translate(-50%, -30px);
+        opacity: 0;
+      }
+      100% {
+        transform: translate(-50%, 0);
+        opacity: 1;
+      }
+    }
+
+    /* Botones en el centro */
     .contenedor-botones {
       position: absolute;
-      top: 56%;
+      top: 55%;
       left: 50%;
       transform: translate(-50%, -50%);
       display: flex;
       flex-direction: column;
-      gap: 50px;
+      gap: 30px;
       align-items: center;
-      z-index: 5;
       opacity: 0;
+      animation: aparecer 1s ease forwards;
+      animation-delay: 0.1s;
+    }
+
+    @keyframes aparecer {
+      to { opacity: 1; }
     }
 
     .boton {
       width: 700px;
-      height: 150px;
-      font-size: 3em;
+      height: 120px;
+      font-size: 3.4em;
+      font-weight: bold;
       border: none;
-      border-radius: 15px;
-      color: white;
+      border-radius: 30px;
+      color: #257774;
       cursor: pointer;
       outline: none;
-      background: linear-gradient(145deg, #ff0015, #000000); /* 🔥 degradado llamativo */
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); /* sombra profunda */
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      background: white;
+      box-shadow: 8px 0 20px #245b59;
+      transition: transform 0.1s ease, box-shadow 0.2s ease;
+      animation: latidoBoton 1.5s infinite ease-in-out;
+    }
+
+    @keyframes latidoBoton {
+      0% { transform: scale(1); }
+      25% { transform: scale(1.05); }
+      50% { transform: scale(1); }
+      75% { transform: scale(1.05); }
+      100% { transform: scale(1); }
     }
 
     .boton:hover {
-      transform: scale(1.05);
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+      transform: scale(1.1);
+      box-shadow: 12px 0 28px black;
     }
 
     .boton:focus {
       outline: none;
+    }
+
+    /* Logo en la parte inferior */
+    #logoImg {
+      position: absolute;
+      bottom: 1%;
+      left: 25%;
+      transform: translateX(-50%);
+      width: 500px;
+      animation: heartbeat 1.5s ease-in-out infinite;
+      transform-origin: 50% 50%;
+      pointer-events: none;
+    }
+
+    @keyframes heartbeat {
+      0% { transform: scale(1); }
+      14% { transform: scale(1.06); }
+      28% { transform: scale(1); }
+      42% { transform: scale(1.06); }
+      70% { transform: scale(1); }
+      100% { transform: scale(1); }
     }
   </style>
 </head>
 
 <body>
 
+  <!-- Texto -->
+  <img id="textImg" src="Imagenes/text.png" alt="Texto">
+
+  <!-- Botones -->
   <div class="contenedor-botones">
     <button class="boton" onclick="window.location.href='programa.html'">Programa Académico</button>
     <button class="boton" onclick="window.location.href='posters.html'">Casos Clínicos</button>
   </div>
 
-</body>
+  <!-- Logo -->
+  <img id="logoImg" src="Imagenes/logo.png" alt="Logo">
 
+</body>
 </html>

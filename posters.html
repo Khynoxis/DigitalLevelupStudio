@@ -294,6 +294,25 @@
 
     generarNavegacion();
     mostrarPosters(paginaActual);
+
+    // Redirección por inactividad
+    let timeout;
+    const redirectAfter = 60000;
+
+    function resetInactivityTimer() {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        window.location.href = 'index.html';
+      }, redirectAfter);
+    }
+
+    ['mousemove', 'mousedown', 'keypress', 'touchstart', 'scroll'].forEach(evt =>
+      document.addEventListener(evt, resetInactivityTimer, { passive: true })
+    );
+
+    resetInactivityTimer();
+
+
   </script>
 </body>
 

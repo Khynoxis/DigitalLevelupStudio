@@ -4,62 +4,45 @@
   <meta charset="UTF-8">
   <title>Póster 1</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      font-family: Arial, sans-serif;
       height: 100%;
+      font-family: Arial, sans-serif;
       background: url('../Imagenes/fondoposters.png') no-repeat center center fixed;
       background-size: cover;
-      overflow-x: hidden;
+      overflow: hidden;
       touch-action: none;
     }
 
-    .boton-retroceder,
-    .boton-home {
+    .boton-retroceder, .boton-home {
       position: fixed;
       width: 120px;
       height: 130px;
       font-size: 2.5em;
       border: none;
       border-radius: 50%;
-      background: rgba(243, 0, 0, 0.9);
-      color: black;
       cursor: pointer;
       z-index: 20;
       box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: transform 0.2s, background-color 0.3s;
       opacity: 0;
     }
 
-    .boton-retroceder {
-      top: 60px;
-      left: 50px;
-    }
-
-    .boton-home {
-      top: 70px;
-      right: 80px;
-    }
-
-    .boton-retroceder:hover,
-    .boton-home:hover {
-      background-color: #ff0000;
-      color: white;
-      transform: scale(1.1);
-    }
+    .boton-retroceder { top: 60px; left: 50px; }
+    .boton-home { top: 70px; right: 80px; }
 
     .container {
       margin-top: 220px;
       display: flex;
       justify-content: center;
       align-items: center;
-      overflow: hidden;
       height: calc(100vh - 200px);
+      overflow: hidden;
     }
 
     .poster-imagen {
@@ -70,7 +53,6 @@
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
       object-fit: contain;
       transition: transform 0.2s ease;
-      z-index: 1;
       touch-action: none;
       cursor: grab;
     }
@@ -78,181 +60,153 @@
 </head>
 
 <body>
-  <!-- Botones navegación -->
   <button class="boton-retroceder" onclick="window.location.href='../posters.html'">←</button>
   <button class="boton-home" onclick="window.location.href='../index.html'">⌂</button>
 
-  <!-- Contenedor principal -->
   <div class="container">
     <img id="poster" class="poster-imagen" src="../Imagenes/poster01.png" alt="Póster 1">
   </div>
 
   <script>
     const img = document.getElementById('poster');
-    let scale = 1;
-    let originX = 50;
-    let originY = 50;
-    let lastTap = 0;
-    let zoomEnabled = true;
+    let scale = 1, originX = 50, originY = 50;
+    let lastTap = 0, zoomEnabled = true;
+    let isDragging = false, dragStartX = 0, dragStartY = 0, currentX = 0, currentY = 0;
+    let pinchStartDist = 0, pinchStartScale = 1;
+    let gallerySwipeEnabled = true;
 
-    let isDragging = false;
-    let dragStartX = 0;
-    let dragStartY = 0;
-    let currentX = 0;
-    let currentY = 0;
+    // Bloquear click derecho y arrastrar imagen
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    img.addEventListener('dragstart', e => e.preventDefault());
 
-    // Zoom y arrastre
     function updateZoom() {
       const container = img.parentElement.getBoundingClientRect();
-      const imgDisplayWidth = img.clientWidth;
-      const imgDisplayHeight = img.clientHeight;
-
-      const scaledWidth = imgDisplayWidth * scale;
-      const scaledHeight = imgDisplayHeight * scale;
-
+      const scaledWidth = img.naturalWidth * scale;
+      const scaledHeight = img.naturalHeight * scale;
       const maxX = Math.max((scaledWidth - container.width) / 2, 0);
       const maxY = Math.max((scaledHeight - container.height) / 2, 0);
-
       currentX = Math.min(maxX, Math.max(-maxX, currentX));
       currentY = Math.min(maxY, Math.max(-maxY, currentY));
-
       img.style.transformOrigin = `${originX}% ${originY}%`;
-      img.style.transform = `scale(${scale}) translate(${currentX}px, ${currentY}px)`;
+      img.style.transform = `translate(${currentX}px, ${currentY}px) scale(${scale})`;
     }
 
     function resetZoom() {
-      scale = 1;
-      originX = 50;
-      originY = 50;
-      currentX = 0;
-      currentY = 0;
+      scale = 1; originX = 50; originY = 50; currentX = 0; currentY = 0;
+      gallerySwipeEnabled = true; // reactivar swipe
       updateZoom();
     }
 
     function zoomAt(x, y, zoomFactor) {
       const rect = img.getBoundingClientRect();
-      const offsetX = x - rect.left;
-      const offsetY = y - rect.top;
-      originX = (offsetX / rect.width) * 100;
-      originY = (offsetY / rect.height) * 100;
-      scale = zoomFactor;
-      currentX = 0;
-      currentY = 0;
-      updateZoom();
+      originX = ((x - rect.left) / rect.width) * 100;
+      originY = ((y - rect.top) / rect.height) * 100;
+      scale = zoomFactor; updateZoom();
     }
 
-    img.onclick = (e) => {
-      const now = Date.now();
+    function handleDoubleTap(x, y) {
       if (!zoomEnabled) return;
-      if (now - lastTap < 300) {
-        scale = scale === 1 ? 2 : 1;
-        zoomAt(e.clientX, e.clientY, scale);
+      if (scale === 1) {
+        scale = 2;
+        gallerySwipeEnabled = false;
+        zoomAt(x, y, scale);
+      } else {
+        resetZoom();
       }
+    }
+
+    img.onclick = e => {
+      const now = Date.now();
+      if (now - lastTap < 300) handleDoubleTap(e.clientX, e.clientY);
       lastTap = now;
     };
 
-    img.ontouchend = (e) => {
-      const now = Date.now();
-      if (!zoomEnabled) return;
-      if (now - lastTap < 300 && e.changedTouches.length === 1) {
-        const touch = e.changedTouches[0];
-        scale = scale === 1 ? 2 : 1;
-        zoomAt(touch.clientX, touch.clientY, scale);
-      }
-      lastTap = now;
-    };
-
-    img.onwheel = (e) => {
+    img.onwheel = e => {
       if (!zoomEnabled) return;
       e.preventDefault();
-      const delta = e.deltaY > 0 ? -0.1 : 0.1;
-      scale += delta;
+      scale += e.deltaY > 0 ? -0.1 : 0.1;
       scale = Math.max(1, Math.min(3, scale));
-      originX = 50;
-      originY = 50;
-      currentX = 0;
-      currentY = 0;
-      updateZoom();
+      if (scale === 1) resetZoom();
+      else {
+        gallerySwipeEnabled = false;
+        updateZoom();
+      }
     };
 
-    img.onmousedown = (e) => {
+    function startDrag(x, y) {
       if (scale === 1) return;
       isDragging = true;
-      dragStartX = e.clientX;
-      dragStartY = e.clientY;
+      gallerySwipeEnabled = false;
+      dragStartX = x; dragStartY = y;
       img.style.cursor = "grabbing";
-    };
-
-    img.onmousemove = (e) => {
-      if (!isDragging) return;
-      const dx = e.clientX - dragStartX;
-      const dy = e.clientY - dragStartY;
-      dragStartX = e.clientX;
-      dragStartY = e.clientY;
-      currentX += dx;
-      currentY += dy;
-      updateZoom();
-    };
-
-    img.onmouseup = () => {
-      isDragging = false;
-      img.style.cursor = "grab";
-    };
-
-    img.onmouseleave = () => {
-      isDragging = false;
-      img.style.cursor = "grab";
-    };
-
-    img.ontouchstart = (e) => {
-      if (scale === 1 || e.touches.length !== 1) return;
-      isDragging = true;
-      const touch = e.touches[0];
-      dragStartX = touch.clientX;
-      dragStartY = touch.clientY;
-    };
-
-    img.ontouchmove = (e) => {
-      if (!isDragging || e.touches.length !== 1) return;
-      const touch = e.touches[0];
-      const dx = touch.clientX - dragStartX;
-      const dy = touch.clientY - dragStartY;
-      dragStartX = touch.clientX;
-      dragStartY = touch.clientY;
-      currentX += dx;
-      currentY += dy;
-      updateZoom();
-    };
-
-    img.ontouchend = () => {
-      isDragging = false;
-    };
-
-    // Swipe táctil para galería
-    let touchStartX = 0;
-    let touchEndX = 0;
-
-    document.addEventListener('touchstart', function (e) {
-      if (e.touches.length === 1) {
-        touchStartX = e.touches[0].clientX;
-      }
-    });
-
-    document.addEventListener('touchend', function (e) {
-      if (e.changedTouches.length === 1) {
-        touchEndX = e.changedTouches[0].clientX;
-        handleSwipe();
-      }
-    });
-
-    function handleSwipe() {
-      const deltaX = touchEndX - touchStartX;
-      if (deltaX > 50) {
-        window.location.href = 'poster3.html'; // ← Anterior
-      } else if (deltaX < -50) {
-        window.location.href = 'poster2.html'; // → Siguiente
-      }
     }
+    function moveDrag(x, y) {
+      if (!isDragging) return;
+      currentX += x - dragStartX; currentY += y - dragStartY;
+      dragStartX = x; dragStartY = y; updateZoom();
+    }
+    function endDrag() { isDragging = false; img.style.cursor = "grab"; }
+
+    img.onmousedown = e => startDrag(e.clientX, e.clientY);
+    img.onmousemove = e => moveDrag(e.clientX, e.clientY);
+    img.onmouseup = endDrag;
+    img.onmouseleave = endDrag;
+
+    img.ontouchstart = e => {
+      if (e.touches.length === 1) {
+        startDrag(e.touches[0].clientX, e.touches[0].clientY);
+      } else if (e.touches.length === 2) {
+        pinchStartDist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        pinchStartScale = scale;
+        gallerySwipeEnabled = false;
+      }
+    };
+
+    img.ontouchmove = e => {
+      if (e.touches.length === 1 && isDragging) {
+        moveDrag(e.touches[0].clientX, e.touches[0].clientY);
+      } else if (e.touches.length === 2) {
+        const dist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        const zoomFactor = dist / pinchStartDist;
+        scale = Math.max(1, Math.min(3, pinchStartScale * zoomFactor));
+        updateZoom();
+      }
+    };
+
+    img.ontouchend = e => {
+      if (scale === 1) resetZoom();
+      endDrag();
+    };
+
+    // Swipe lateral de galería (solo si no hay zoom)
+    let touchStartX = 0;
+    document.addEventListener('touchstart', e => {
+      if (e.touches.length === 1) touchStartX = e.touches[0].clientX;
+    });
+    document.addEventListener('touchend', e => {
+      if (!gallerySwipeEnabled) return;
+      if (e.changedTouches.length === 1) {
+        const deltaX = e.changedTouches[0].clientX - touchStartX;
+        if (deltaX > 50) window.location.href = 'poster3.html';
+        else if (deltaX < -50) window.location.href = 'poster2.html';
+      }
+    });
+
+    // Inactividad → volver al inicio
+    let timeout, redirectAfter = 60000;
+    function resetInactivityTimer() {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => window.location.href = '../index.html', redirectAfter);
+    }
+    ['mousemove','mousedown','keypress','touchstart','scroll']
+      .forEach(evt => document.addEventListener(evt, resetInactivityTimer, { passive: true }));
+    resetInactivityTimer();
 
     resetZoom();
   </script>
